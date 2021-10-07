@@ -22,7 +22,7 @@ Route::get('/debug/editRow', function () {
     /** @var ToDoList $entityObject */
     $entityObject = ToDoList::firstOrFail();
 
-    $entityObject->setAttribute('exampleName', 'qwerty!');
+    $entityObject->setAttribute('exampleName', 'qwerty123');
     $entityObject->save();
 });
 

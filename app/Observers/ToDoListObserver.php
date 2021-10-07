@@ -8,6 +8,24 @@ use App\Services\StringService;
 class ToDoListObserver
 {
     /**
+     * @param ToDoList $toDoList
+     * @param callable $converter
+     */
+    private function convertColumnNames(ToDoList $toDoList, callable $converter)
+    {
+        foreach ($toDoList->getAttributes() as $key => $value) {
+            $newKey = $converter($key);
+            // Если ключ атрибута не изменился, пропускаем атрибут
+            if ($newKey === $key) {
+                continue;
+            }
+
+            $toDoList->setAttribute($newKey, $value);
+            unset($toDoList->{$key});
+        }
+    }
+
+    /**
      * Handle the ToDoList "retrieved" event.
      *
      * Производит трансляцию имен столбцов из БД в модель в camelCase,
@@ -23,22 +41,17 @@ class ToDoListObserver
      */
     public function retrieved(ToDoList $toDoList)
     {
-        foreach ($toDoList->getAttributes() as $key => $value) {
-            $newKey = StringService::snakeToCamelCase($key);
-            // Если ключ атрибута не содержит "_", пропускаем атрибут
-            if ($newKey === $key) {
-                continue;
-            }
-
-            $toDoList->setAttribute($newKey, $value);
-            unset($toDoList->{$key});
-        }
+        $this->convertColumnNames(
+            $toDoList,
+            [StringService::class, 'snakeToCamelCase']
+        );
     }
 
     /**
      * Handle the ToDoList "saving" event.
      *
-     * Производим обратную трансляцию имен столбцов перед сохранением объекта в БД.
+     * Производим обратную трансляцию имен столбцов
+     * перед сохранением объекта в БД.
      *
      * @param ToDoList $toDoList
      *
@@ -46,16 +59,10 @@ class ToDoListObserver
      */
     public function saving(ToDoList $toDoList)
     {
-        foreach ($toDoList->getAttributes() as $key => $value) {
-            $newKey = StringService::camelCaseToSnake($key);
-            // Если ключ атрибута не изменился, пропускаем атрибут
-            if ($newKey === $key) {
-                continue;
-            }
-
-            $toDoList->setAttribute($newKey, $value);
-            unset($toDoList->{$key});
-        }
+        $this->convertColumnNames(
+            $toDoList,
+            [StringService::class, 'camelCaseToSnake']
+        );
     }
 
 }
