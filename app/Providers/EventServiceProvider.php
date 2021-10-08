@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\ToDoList;
+use App\Observers\CamelCaseFieldsObserver;
 use App\Observers\ToDoListObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -29,6 +30,6 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        ToDoList::observe(ToDoListObserver::class);
+        ToDoList::observe(CamelCaseFieldsObserver::class);
     }
 }
